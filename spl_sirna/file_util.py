@@ -28,6 +28,7 @@ def get_data_from_file(fpath, xname=None, yname=None, upper=False, dropna=True, 
     '''
     path = sys.path[0]
     fpath = os.path.join(path, fpath)
+    print("read fpath:", fpath)
     file_type = fpath.split('.')[-1]
     raw_data = pd.DataFrame()
 
@@ -83,10 +84,16 @@ def write_csv_excel(data, fpath, columns=None, header=False, sheet_name=None, na
     Returns：
         None -- None
     '''
+    path = sys.path[0]
+    fpath = os.path.join(path, fpath)
+    print("write fpath:", fpath)
+
     if type(data) not in [pd.DataFrame, np.ndarray, pd.Series, list]:
         raise ValueError("data数据类型只支持DataFrame, Series, ndarray和list")
+
     data = pd.DataFrame(data)
     file_type = fpath.split('.')[-1]
+
     if file_type == 'csv':
         data.to_csv(fpath, columns=columns, index=False, header=header, na_rep=nan_rep, encoding=encoding)
     elif file_type in ['xls', 'xlsx', 'xlsm', 'xlsb', 'odf']:

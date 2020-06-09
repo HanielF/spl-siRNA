@@ -52,7 +52,7 @@ def make_scatter(xdata, ydata, xlabel=None, ylabel=None, xtick=None, ytick=None,
 
     # 绘制主要部分
     plt.figure(figsize=[10, 6])
-    plt.scatter(x=xdata, y=ydata, marker='.', c='black', s=16)
+    plt.scatter(x=xdata, y=ydata, marker='.', c='black', s=26)
 
     # 绘制xticks和yticks
     xmax, xmin = np.max(xdata), np.min(xdata)
@@ -93,7 +93,7 @@ def make_scatter(xdata, ydata, xlabel=None, ylabel=None, xtick=None, ytick=None,
     # 保存和显示图
     if filename is not None:
         plt.savefig(filename, bbox_inches='tight')
-    plt.show()
+    # plt.show()
 
 
 def make_plot(data, labels=None, titles=None, filename=None):
@@ -145,7 +145,7 @@ def make_plot(data, labels=None, titles=None, filename=None):
 
         # 绘制每个折线图
         for j, plt_data in enumerate(fig_data):
-            plt_label = label[j]
+            plt_label = labels[j]
             x = np.arange(0, xmax, step=1)
             ax.plot(x, plt_data, label=plt_label, marker='.')
         ax.legend(loc='best')
@@ -154,4 +154,4 @@ def make_plot(data, labels=None, titles=None, filename=None):
     # 保存和显示图
     if filename is not None:
         plt.savefig(filename, bbox_inches='tight')
-    plt.show()
+    # plt.show()

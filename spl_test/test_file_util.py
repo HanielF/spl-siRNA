@@ -9,54 +9,79 @@
 '''
 
 import sys
-sys.path.append("../spl_sirna")
+import os
+sys.path.append("f:\\Learning\\siRNA\\Projects\\Tornado_LSTM")
+print(sys.path)
 from spl_sirna import file_util
 import numpy as np
 import pandas as pd
+os.chdir('f:\\Learning\\siRNA\\Projects\\Tornado_LSTM\\spl_test')
 
 
-def test_get_data_from_file():
+def test_get_data_from_file(args):
     '''
     Desc：
         测试read file 监督学习中通用的读csv/excel的构件
-    Return:
-        正常：True，出错：False
     '''
     flag = True
+    testRes = "Return: \n"
     try:
-        seq, seq_freq = file_util.get_data_from_file(
-            './input.csv',
-            xname='Guide strand',
-            yname='Normalized inhibitory activity')
-        seq, seq_freq = file_util.get_data_from_file(
-            './input.csv', xname=['NAS ID', 'Guide strand'], yname=[])
+        fp = os.path.join('spl_test\\', args[0])
+        xname = None if args[1] == '' else args[1].split(",")
+        yname = None if args[2] == '' else args[2]
+        upper = True if args[3] == 'True' else False
+        dropna = True if args[4] == 'True' else False
+        encode = args[5]
+        x, y = file_util.get_data_from_file(fp,
+                                            xname=xname,
+                                            yname=yname,
+                                            upper=upper,
+                                            dropna=dropna,
+                                            encode=encode)
+        res_x, res_y = x[:5], y[:5]
+        testRes += "xdata: {}\nydata: {}".format(res_x, res_y)
     except Exception as e:
-        print(e)
+        testRes += str(e)
         flag = False
     finally:
-        print("RSC: get_data_from_file {}".format('is OK' if flag else 'has bugs'))
-    return flag
+        logstring = "rsc: get_data_from_file {}".format(
+            'is ok' if flag else 'has bugs')
+        print("logstring: ", logstring)
+        testres = testres + "\n" + logstring
+        print("end test")
+    return testres
 
 
-def test_write_csv_excel():
+def test_write_csv_excel(args):
     '''
     Desc：
         write to file 通用的写csv/excel/txt文件构件
-    Return:
-        正常：True，出错：False
     '''
     flag = True
+    testRes = "Return: \n"
     try:
-        a = pd.DataFrame(np.arange(10).reshape(2,5))
-        file_util.write_csv_excel(a, './test.csv')
+        data = args[0].split(',')
+        fp = os.path.join('spl_test\\', args[1])
+        columns = None if args[2] == 'None' else args[3].split(",")
+        header = True if args[3] == 'True' else False
+        sheet_name = args[4]
+        nan_rep = args[5]
+        encode = None if args[6] == 'None' else args[6]
+        file_util.write_csv_excel(data, fp, columns, header, sheet_name,
+                                  nan_rep, encode)
     except Exception as e:
-        print(e)
+        testRes += str(e)
         flag = False
     finally:
-        print("RSC: write_csv_excel is {}".format('is OK' if flag else 'has bugs'))
-    return flag
+        logString = "RSC: write_csv_excel is {}".format(
+            'is OK' if flag else 'has bugs')
+        print("logString: ", logString)
+        testRes = testRes + "\n" + logString
+        print("End Test")
+    return testRes
 
 
 if __name__ == "__main__":
-    test_get_data_from_file()
-    test_write_csv_excel()
+    # test_get_data_from_file()
+    test_write_csv_excel(
+        ['a,b,c,d', 'output.csv', 'None', 'False', 'None', 'NULL', 'None'])
