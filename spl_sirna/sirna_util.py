@@ -139,6 +139,8 @@ def get_seq_motif(seqs, motif=1):
         seq_motif = np.empty((seqs.shape[0], len(seqs[0]) - n), dtype=int)
         for i in range(seqs.shape[0]):
             for j in range(len(seqs[0]) - n):
+                if seqs[i][j:j + n + 1] == '':
+                    raise ValueError("各序列长度需要一致")
                 seq_motif[i][j] = base_to_idx[seqs[i][j:j + n + 1]]
         res.append(seq_motif)
     return res

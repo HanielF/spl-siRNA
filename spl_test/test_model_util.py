@@ -10,89 +10,119 @@
 
 import sys
 sys.path.append("../spl_sirna")
+sys.path.append('f:\\Learning\\siRNA\\Projects\\Tornado_LSTM')
 from spl_sirna import data_util
 from spl_sirna import model_util
 
 
-def test_Word2vecModel():
+def test_Word2vecModel(args):
     '''
     Desc：
         测试通用的word2vec模型
     '''
     flag = True
+    testRes = "Return: \n"
     try:
-        model = model_util.Word2vecModel(10, 10)
+        vocab_size = int(args[0])
+        embed_size = int(args[1])
+        model = model_util.Word2vecModel(vocab_size, embed_size)
+        testRes += "Word2vecModel: \n{}".format(str(model.modules))
     except Exception as e:
-        print(e)
+        testRes += str(e)
         flag = False
     finally:
-        print("RSC: Word2vecModel {}".format('is OK' if flag else 'has bugs'))
-    return flag
+        logString = "RSC: Word2vecModel {}".format('is OK' if flag else 'has bugs')
+        print("logString: ", logString)
+        testRes = testRes + "\n" + logString
+        print("End Test")
+    return testRes
 
 
-def test_MultiMotifLSTMModel():
+def test_MultiMotifLSTMModel(args):
     '''
     Desc：
         测试MultiMotifLSTMModel模型
     '''
     flag = True
+    testRes = "Return: \n"
     try:
-        model = model_util.MultiMotifLSTMModel([10, 10, 10], [10, 10, 10],
-                                               10,
-                                               1,
-                                               1,
-                                               True,
-                                               dropout=0.5,
-                                               avg_hidden=False,
-                                               motif=3,
-                                               loadvec=False,
-                                               device='cuda')
+        vocab_size = args[0].split(',')
+        vocab_size = [int(x) for x in vocab_size]
+        embedding_dim = args[1].split(',')
+        embedding_dim = [int(x) for x in embedding_dim]
+        hidden_dim = int(args[2])
+        output_dim = int(args[3])
+        n_layers = int(args[4])
+        bidirectional = True if args[5] == 'True' else False
+        dropout = float(args[6])
+        avg_hidden = True if args[7] == 'True' else False
+        motif = args[8].split(",")
+        model = model_util.MultiMotifLSTMModel(vocab_size, embedding_dim, hidden_dim, output_dim, n_layers, bidirectional, dropout, avg_hidden, motif,False,'cuda')
+        testRes += "MultiMotifLSTMModel: \n{}".format(str(model.modules))
     except Exception as e:
-        print(e)
+        testRes += str(e)
         flag = False
     finally:
-        print("RSC: MultiMotifLSTMModel {}".format(
-            'is OK' if flag else 'has bugs'))
-    return flag
+        logString = "RSC: MultiMotifLSTMModel {}".format('is OK' if flag else 'has bugs')
+        print("logString: ", logString)
+        testRes = testRes + "\n" + logString
+        print("End Test")
+    return testRes
 
 
-def test_EmbeddingLSTMModel():
+def test_EmbeddingLSTMModel(args):
     '''
     Desc：
         测试EmbeddingLSTMModel模型
     '''
     flag = True
+    testRes = "Return: \n"
     try:
-        model = model_util.EmbeddingLSTMModel(10, 10, 10, 1, 1)
+        vocab_size = int(args[0])
+        embedding_dim = int(args[1])
+        hidden_dim = int(args[2])
+        output_dim = int(args[3])
+        n_layers = int(args[4])
+        bidirectional = True if args[5] == 'True' else False
+        dropout = float(args[6])
+        avg_hidden = True if args[7] == 'True' else False
+        model = model_util.EmbeddingLSTMModel(vocab_size, embedding_dim, hidden_dim, output_dim, n_layers, bidirectional, dropout)
+        testRes += "EmbeddingLSTMModel: \n{}".format(str(model.modules))
     except Exception as e:
-        print(e)
+        testRes += str(e)
         flag = False
     finally:
-        print("RSC: EmbeddingLSTMModel {}".format(
-            'is OK' if flag else 'has bugs'))
-    return flag
+        logString = "RSC: EmbeddingLSTMModel {}".format('is OK' if flag else 'has bugs')
+        print("logString: ", logString)
+        testRes = testRes + "\n" + logString
+        print("End Test")
+    return testRes
 
 
-def test_count_parameters():
+def test_count_parameters(args):
     '''
     Desc：
         测试count_parameters函数
     '''
     flag = True
+    testRes = "Return: \n"
     try:
-        model = model_util.EmbeddingLSTMModel(10, 10, 10, 1, 1)
+        vocab_size = int(args[0])
+        embed_size = int(args[1])
+        model = model_util.Word2vecModel(vocab_size, embed_size)
         para = model_util.count_parameters(model)
+        testRes += "modules: \n{}\nparameters: {}".format(str(model.modules), str(para))
     except Exception as e:
-        print(e)
+        testRes += str(e)
         flag = False
     finally:
-        print("RSC: count_parameters {}".format(
-            'is OK' if flag else 'has bugs'))
-    return flag
+        logString = "RSC: count_parameters {}".format('is OK' if flag else 'has bugs')
+        print("logString: ", logString)
+        testRes = testRes + "\n" + logString
+        print("End Test")
+    return testRes
 
 
 if __name__ == "__main__":
-    test_Word2vecModel()
-    test_MultiMotifLSTMModel()
-    test_EmbeddingLSTMModel()
-    test_count_parameters()
+    args = ["10,10,10", "10,10,10", "10", "10", "1", "False", "0.5", "False", "1,2,3"]
+    test_MultiMotifLSTMModel(args)
