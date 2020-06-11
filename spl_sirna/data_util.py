@@ -406,7 +406,7 @@ class EmbeddedTextDataset(tud.Dataset):
 
 
 class Word2VecDataset(tud.Dataset):
-    def __init__(self, text, word_to_idx, idx_to_word, word_freqs):
+    def __init__(self, text, word_to_idx, idx_to_word, word_freqs, C, K, MOTIF):
         '''
         Desc：
             word2vec模型数据集构建函数
@@ -415,12 +415,18 @@ class Word2VecDataset(tud.Dataset):
             word_to_idx  --  词汇到下标的转换词典
             idx_to_word  --  下标到词汇的转换列表
             word_freqs  --  词频
+            C  --  窗口大小，前后C个碱基，共2C个
+            K  --  每个正样本采样K个负样本，一共2C*K个
+            MOTIF  --  使用1-MOTIF长度
         '''
         super(Word2VecDataset, self).__init__()
         self.text_encoded = sirna_util.get_seq_motif(text, motif=MOTIF)[0]
         self.text_encoded = torch.Tensor(self.text_encoded).long()
         self.word_to_idx = word_to_idx
         self.idx_to_word = idx_to_word
+        self.C = C
+        self.K = K
+        self.MOTIF = MOTIF
         self.word_freqs = torch.Tensor(word_freqs)
         self.center_sample, self.pos_sample, self.neg_sample = self.get_sample(
             self.text_encoded)
@@ -466,17 +472,17 @@ class Word2VecDataset(tud.Dataset):
 
         for seq in seqs_encoded:  # seq 句子
             for i, s in enumerate(seq):  # s 词
-                pos_idx = list(range(max(0, i - C), i)) + list(
-                    range(i + 1, min(seq_len, i + C + 1)))
+                pos_idx = list(range(max(0, i - self.C), i)) + list(
+                    range(i + 1, min(seq_len, i + self.C + 1)))
                 pos_word = seq[pos_idx]  #tensor
-                while len(pos_word) < 2 * C:  # 对缺少的数据填充
-                    pos_word = torch.cat((pos_word, pos_word))[:2 * C]
+                while len(pos_word) < 2 * self.C:  # 对缺少的数据填充
+                    pos_word = torch.cat((pos_word, pos_word))[:2 * self.C]
 
                 neg_word = torch.multinomial(self.word_freqs,
-                                             K * pos_word.shape[0],
+                                             self.K * pos_word.shape[0],
                                              True)  # 负采样
-                while len(neg_word) < 2 * C * K:  # 对缺少的数据填充
-                    neg_word = torch.cat((neg_word, neg_word))[:2 * C * K]
+                while len(neg_word) < 2 * self.C * self.K:  # 对缺少的数据填充
+                    neg_word = torch.cat((neg_word, neg_word))[:2 * self.C * self.K]
 
                 pos_sample.append(pos_word)
                 neg_sample.append(neg_word)
