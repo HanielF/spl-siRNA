@@ -12,7 +12,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import pearsonr
 
-def make_scatter(xdata, ydata, xlabel=None, ylabel=None, xtick=None, ytick=None, title=None, error=False, pcc=False, yxline=False, filename=None):
+
+def make_scatter(xdata,
+                 ydata,
+                 xlabel=None,
+                 ylabel=None,
+                 xtick=None,
+                 ytick=None,
+                 title=None,
+                 error=False,
+                 pcc=False,
+                 yxline=False,
+                 filename=None,
+                 show=False):
     '''
     Desc：
         在回归任务或分类任务中，绘制预测结果和真实值的散点图，并且保存在本地
@@ -45,14 +57,27 @@ def make_scatter(xdata, ydata, xlabel=None, ylabel=None, xtick=None, ytick=None,
     if title is not None and type(title) is not str:
         title = str(title)
 
-    if xtick is not None and type(xtick) is not list and type(xtick) is not np.ndarray:
+    if xtick is not None and type(xtick) is not list and type(
+            xtick) is not np.ndarray:
         raise TypeError("xtick格式应该为list或numpy.ndarray")
-    if ytick is not None and type(ytick) is not list and type(ytick) is not np.ndarray:
+    if ytick is not None and type(ytick) is not list and type(
+            ytick) is not np.ndarray:
         raise TypeError("ytick格式应该为list或numpy.ndarray")
 
+    # 设置显示文字样式
+    font1 = {
+        'family': 'Times New Roman',
+        'weight': 'normal',
+        'size': 14,
+    }
+    font2 = {
+        'family': 'Times New Roman',
+        'weight': 'normal',
+        'size': 10,
+    }
     # 绘制主要部分
-    plt.figure(figsize=[10, 6])
-    plt.scatter(x=xdata, y=ydata, marker='.', c='black', s=26)
+    plt.figure(figsize=[6, 6])
+    plt.scatter(x=xdata, y=ydata, marker='.', c='black', s=16)
 
     # 绘制xticks和yticks
     xmax, xmin = np.max(xdata), np.min(xdata)
@@ -76,27 +101,30 @@ def make_scatter(xdata, ydata, xlabel=None, ylabel=None, xtick=None, ytick=None,
         avg_diff = np.sum(abs_diff) / xdata.size
         max_diff = np.max(abs_diff)
         min_diff = np.min(abs_diff)
-        pos_x = xmin + (xmax - xmin) * 0.8
-        plt.text(pos_x, ymin + (ymax - ymin) * 0.2, 'Average error: {:.3f}'.format(avg_diff))
-        plt.text(pos_x, ymin + (ymax - ymin) * 0.15, 'Max error: {:.3f}'.format(max_diff))
-        plt.text(pos_x, ymin + (ymax - ymin) * 0.1, 'Min error: {:.3f}'.format(min_diff))
+        pos_x = xmin + (xmax - xmin) * 0.7
+        plt.text(pos_x, ymin + (ymax - ymin) * 0.2,
+                 'Average error: {:.3f}'.format(avg_diff), font2)
+        plt.text(pos_x, ymin + (ymax - ymin) * 0.15,
+                 'Max error: {:.3f}'.format(max_diff), font2)
+        plt.text(pos_x, ymin + (ymax - ymin) * 0.1,
+                 'Min error: {:.3f}'.format(min_diff), font2)
     # 计算相关系数
     if pcc:
         r, _ = pearsonr(xdata, ydata)
-        plt.text(pos_x, ymin + (ymax - ymin) * 0.05, 'PCC: {:.3f}'.format(r))
+        plt.text(pos_x, ymin + (ymax - ymin) * 0.05, 'PCC: {:.3f}'.format(r), font2)
 
     # 绘制label和title
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
+    plt.xlabel(xlabel, font1)
+    plt.ylabel(ylabel, font1)
+    plt.title(title, font1)
 
     # 保存和显示图
     if filename is not None:
         plt.savefig(filename, bbox_inches='tight')
-    # plt.show()
+    plt.show()
 
 
-def make_plot(data, labels=None, titles=None, filename=None):
+def make_plot(data, labels=None, titles=None, filename=None, show=False, xtick_space=1):
     '''
     Desc：
         绘制折线图，可以在一个画布中绘制多张图，并可以保存在本地
@@ -116,10 +144,18 @@ def make_plot(data, labels=None, titles=None, filename=None):
     # 创建画布
     fig = plt.figure(figsize=[10, 6])
     fig.subplots_adjust(hspace=0.6)
-
+    font1 = {
+        'family': 'Times New Roman',
+        'weight': 'normal',
+        'size': 14,
+    }
+    font2 = {
+        'family': 'Times New Roman',
+        'weight': 'normal',
+    }
     # 对可能缺少的label和title进行补全
-    labels = ['']*len(data) if labels is None else labels
-    titles = ['']*len(data) if titles is None else titles
+    labels = [''] * len(data) if labels is None else labels
+    titles = [''] * len(data) if titles is None else titles
     if len(labels) < len(data):
         labels.extend([''] * (len(data) - len(labels)))
     if len(titles) < len(data):
@@ -133,25 +169,31 @@ def make_plot(data, labels=None, titles=None, filename=None):
         ymax, ymin = np.max(fig_data), np.min(fig_data)
         xmax, xmin = len(fig_data[0]), 0
 
-        if len(fig_data[0]) > 20:
-            tickNum = (len(fig_data[0]) - len(fig_data[0]) % 5) // 5 + 1
-        else:
+        if xtick_space == 1:
             tickNum = len(fig_data[0]) + 1
+        else:
+            tickNum = (len(fig_data[0]) - len(fig_data[0]) % xtick_space) // xtick_space + 1
         xtick = np.linspace(xmin, xmax, tickNum, dtype=int).tolist()
         ytick = np.linspace(ymin, ymax, 11).tolist()
 
         # 创建子图
-        ax = fig.add_subplot(len(data), 1, i + 1, xlim=(xmin, xmax), ylim=(ymin, ymax), xticks=xtick, yticks=ytick)
+        ax = fig.add_subplot(len(data),
+                             1,
+                             i + 1,
+                             xlim=(xmin, xmax),
+                             ylim=(ymin, ymax),
+                             xticks=xtick,
+                             yticks=ytick)
 
         # 绘制每个折线图
         for j, plt_data in enumerate(fig_data):
-            plt_label = labels[j]
+            plt_label = label[j]
             x = np.arange(0, xmax, step=1)
             ax.plot(x, plt_data, label=plt_label, marker='.')
-        ax.legend(loc='best')
-        plt.title(title)
+        ax.legend(loc='best', prop=font2)
+        plt.title(title, font1)
 
     # 保存和显示图
     if filename is not None:
         plt.savefig(filename, bbox_inches='tight')
-    # plt.show()
+    plt.show()
