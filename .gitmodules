@@ -1,0 +1,3 @@
+[submodule "spl_sirna"]
+	path = spl_sirna
+	url = https://github.com/HanielF/spl_sirna
